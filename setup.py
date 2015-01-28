@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 from collect_exceptions import VERSION
 
-url = "https://github.com/Yemsheng/collect-exceptions.git"
+url = "https://github.com/Yemsheng/collect-exceptions"
 
 long_description = "python exception collector"
 
