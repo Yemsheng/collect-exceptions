@@ -55,8 +55,8 @@ def get_mod_func(callback):
     return callback[:dot], callback[dot + 1:]
 
 
-def raven_import_module(name):
-    log.debug('raven_import_module name = %s' % name)
+def import_module(name):
+    log.debug('import_module name = %s' % name)
     __import__(name)
     return sys.modules[name]
 
@@ -69,10 +69,10 @@ def handle_config():
     mod_name, func_name = get_mod_func(captureException)
     log.info('mod_name = %s  func_name = %s' % (mod_name, func_name))
     try:
-        mod = raven_import_module(mod_name)
+        mod = import_module(mod_name)
     except Exception, e:
         log.error(e)
-        log.error('raven_import_module except return False')
+        log.error('import_module except return False')
         return False
     else:
         try:

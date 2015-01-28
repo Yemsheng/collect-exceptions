@@ -13,3 +13,5 @@ tags
 .idea
 *.rdb
 node_modules
+*.egg-info
+dist
