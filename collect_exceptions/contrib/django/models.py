@@ -6,15 +6,19 @@ import traceback
 from django.conf import settings as django_settings
 
 
+def default_exception_collector(exception_str):
+    log.error(exception_str)
+
+
 def my_exception_handler(request, **kwargs):
     try:
         type_, value, tb = sys.exc_info()
         exc_info = traceback.format_exception(type_, value, tb)
         einfo = ''.join(exc_info)
-        log.error(einfo)
-        django_settings.MYRAVEN_CONFIG['exception_handler'](einfo)
+        log.warning(einfo)
+        django_settings.COLLECT_EXCEPTIONS_CONFIG['exception_collector'](einfo)
     except Exception, e:
-        log.error(e)
+        log.warning(e)
 
 
 def register_handlers():
@@ -37,11 +41,12 @@ def register_handlers():
 
 
 def is_config_ok():
-    if not getattr(django_settings, 'MYRAVEN_CONFIG', None):
-        log.warning('no MYRAVEN_CONFIG in settings return False')
+    if not getattr(django_settings, 'COLLECT_EXCEPTIONS_CONFIG', None):
+        log.warning('no COLLECT_EXCEPTIONS_CONFIG in settings return False')
         return False
-    if not django_settings.MYRAVEN_CONFIG.get('captureException', None):
-        log.warning('no captureException in MYRAVEN_CONFIG return False')
+    if not django_settings.COLLECT_EXCEPTIONS_CONFIG.get('EXCEPTION_COLLECTOR', None):
+        log.warning(
+            'no EXCEPTION_COLLECTOR in COLLECT_EXCEPTIONS_CONFIG return False')
         return False
 
     return True
@@ -62,17 +67,15 @@ def import_module(name):
 
 
 def handle_config():
-    if not is_config_ok():
-        return False
-
-    captureException = django_settings.MYRAVEN_CONFIG['captureException']
-    mod_name, func_name = get_mod_func(captureException)
+    EXCEPTION_COLLECTOR = django_settings.COLLECT_EXCEPTIONS_CONFIG[
+        'EXCEPTION_COLLECTOR']
+    mod_name, func_name = get_mod_func(EXCEPTION_COLLECTOR)
     log.info('mod_name = %s  func_name = %s' % (mod_name, func_name))
     try:
         mod = import_module(mod_name)
     except Exception, e:
-        log.error(e)
-        log.error('import_module except return False')
+        log.warning(e)
+        log.warning('import_module except return False')
         return False
     else:
         try:
@@ -82,7 +85,8 @@ def handle_config():
                     "Could not import %s.%s. Func is not callable." %
                     (mod_name, func_name))
                 return False
-            django_settings.MYRAVEN_CONFIG['exception_handler'] = lookup_func
+            django_settings.COLLECT_EXCEPTIONS_CONFIG[
+                'exception_collector'] = lookup_func
         except AttributeError:
             log.error(
                 "Could not import %s.%s. Func is not callable." %
@@ -93,7 +97,15 @@ def handle_config():
     return True
 
 
-if handle_config():
-    register_handlers()
+if is_config_ok():
+    ret = handle_config()
+    if not ret:
+        log.error('collect exceptions package config wrong')
+        log.error('check your settings')
 else:
-    log.error('collect_exceptions can not register handler')
+    if not getattr(django_settings, 'COLLECT_EXCEPTIONS_CONFIG', None):
+        django_settings.COLLECT_EXCEPTIONS_CONFIG = {}
+    django_settings.COLLECT_EXCEPTIONS_CONFIG[
+        'exception_collector'] = default_exception_collector
+
+register_handlers()

@@ -11,10 +11,10 @@ def register_signal():
     def process_failure_signal(
             sender, task_id, exception,
             traceback, einfo, args, kwargs, **kw):
-        # This signal is fired inside the stack so let raven do its magic
-        log.warning(str(einfo))
+
         einfo = str(einfo)
-        django_settings.MYRAVEN_CONFIG['exception_handler'](einfo)
+        log.warning(einfo)
+        django_settings.COLLECT_EXCEPTIONS_CONFIG['exception_collector'](einfo)
 
     log.info('register_signal success')
 
