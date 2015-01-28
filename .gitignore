@@ -1,0 +1,15 @@
+*.pyc
+*.db
+*.log
+*.log.*
+build
+xsettings.py
+.DS_Store
+.ropeproject
+_build
+_static
+_templates
+tags
+.idea
+*.rdb
+node_modules
