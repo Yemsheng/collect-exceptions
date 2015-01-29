@@ -1,8 +1,8 @@
 # collect-exceptions
 
 ---
-'collect-exceptions' is a python exception collector
-It can collect django, celery exception
+'collect-exceptions' is a python exception collector.
+It can collect django and celery exception
 
 ---
 ### django:
