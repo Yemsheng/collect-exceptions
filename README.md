@@ -31,3 +31,10 @@ COLLECT_EXCEPTIONS_CONFIG = {
 def your_func(exception_trace_str):
     pass
 ```
+
+# Ok, how do I get it?
+---
+You just need to
+```shell
+pip install collect-exceptions
+```
