@@ -12,9 +12,13 @@ def default_exception_collector(exception_str):
 
 def my_exception_handler(request, **kwargs):
     try:
+        request_info = 'host: %s\n path: %s\n body: %s\n' % (
+            request.get_host(), request.get_full_path(),
+            request.body or 'None')
         type_, value, tb = sys.exc_info()
         exc_info = traceback.format_exception(type_, value, tb)
         einfo = ''.join(exc_info)
+        einfo = request_info + einfo
         log.warning(einfo)
         django_settings.COLLECT_EXCEPTIONS_CONFIG['exception_collector'](einfo)
     except Exception, e:
