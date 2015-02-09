@@ -12,9 +12,13 @@ def default_exception_collector(exception_str):
 
 def my_exception_handler(request, **kwargs):
     try:
-        request_info = 'host: %s\n path: %s\n body: %s\n' % (
-            request.get_host(), request.get_full_path(),
-            request.body or 'None')
+        log.debug(dir(request))
+        request_info = '%s %s%s\n' % (
+            request.method,
+            request.get_host(),
+            request.get_full_path())
+        if request.body:
+            request_info = request_info + request.body + '\n'
         type_, value, tb = sys.exc_info()
         exc_info = traceback.format_exception(type_, value, tb)
         einfo = ''.join(exc_info)
